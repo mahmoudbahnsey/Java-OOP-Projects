@@ -1,0 +1,84 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "Loginpage",
+            "request": "launch",
+            "mainClass": "Loginpage",
+            "projectName": "airlinebookingsystem_d03f002e"
+        },
+        {
+            "type": "java",
+            "name": "Register",
+            "request": "launch",
+            "mainClass": "Register",
+            "projectName": "airlinebookingsystem_d03f002e"
+        },
+        {
+            "type": "java",
+            "name": "Removeschedule",
+            "request": "launch",
+            "mainClass": "Removeschedule",
+            "projectName": "airlinebookingsystem_d03f002e"
+        },
+        {
+            "type": "java",
+            "name": "addschedule",
+            "request": "launch",
+            "mainClass": "addschedule",
+            "projectName": "airlinebookingsystem_d03f002e"
+        },
+        {
+            "type": "java",
+            "name": "addschedulepan",
+            "request": "launch",
+            "mainClass": "addschedulepan",
+            "projectName": "airlinebookingsystem_d03f002e"
+        },
+        {
+            "type": "java",
+            "name": "choosetrip",
+            "request": "launch",
+            "mainClass": "choosetrip",
+            "projectName": "airlinebookingsystem_d03f002e"
+        },
+        {
+            "type": "java",
+            "name": "manager_dashboard",
+            "request": "launch",
+            "mainClass": "manager_dashboard",
+            "projectName": "airlinebookingsystem_d03f002e"
+        },
+        {
+            "type": "java",
+            "name": "test",
+            "request": "launch",
+            "mainClass": "passengers.test",
+            "projectName": "airlinebookingsystem_d03f002e"
+        },
+        {
+            "type": "java",
+            "name": "refundrequests",
+            "request": "launch",
+            "mainClass": "refundrequests",
+            "projectName": "airlinebookingsystem_d03f002e"
+        },
+        {
+            "type": "java",
+            "name": "updateschedule",
+            "request": "launch",
+            "mainClass": "updateschedule",
+            "projectName": "airlinebookingsystem_d03f002e"
+        }
+    ]
+}

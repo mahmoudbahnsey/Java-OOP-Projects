@@ -1,0 +1,459 @@
+@startuml Library_Management_System_Class_Diagram
+
+!define RECTANGLE class
+
+' Style settings
+skinparam class {
+    BackgroundColor White
+    ArrowColor Black
+    BorderColor Black
+}
+
+skinparam package {
+    BackgroundColor LightBlue
+    BorderColor Black
+}
+
+' Title
+title Library Management System - Complete Class Diagram (Updated)
+
+' Core Entity Classes
+package "Core Entities" {
+    class Book {
+        -String bookId
+        -String title
+        -String author
+        -String isbn
+        -String genre
+        -int totalCopies
+        -int availableCopies
+        -int borrowedCopies
+        -String description
+        -Date publicationDate
+        -String publisher
+        -boolean active
+        +Book(String bookId, String title, String author, String isbn, String genre, int totalCopies, String description, Date publicationDate, String publisher)
+        +String getBookId()
+        +String getTitle()
+        +String getAuthor()
+        +String getIsbn()
+        +String getGenre()
+        +int getTotalCopies()
+        +int getAvailableCopies()
+        +int getBorrowedCopies()
+        +String getDescription()
+        +Date getPublicationDate()
+        +String getPublisher()
+        +boolean isActive()
+        +void setTotalCopies(int totalCopies)
+        +void setAvailableCopies(int availableCopies)
+        +void setBorrowedCopies(int borrowedCopies)
+        +void setActive(boolean active)
+        +boolean isAvailable()
+        +void borrowCopy()
+        +void returnCopy()
+        +int calculateAvailableCopies()
+        +void updateAvailableCopies()
+        +double getAvailabilityPercentage()
+        +String toString()
+    }
+
+    class User {
+        -String userId
+        -String username
+        -String password
+        -String fullName
+        -String email
+        -UserRole role
+        -boolean active
+        -int bookCapacity
+        -List<Transaction> transactionHistory
+        +User(String userId, String username, String password, String fullName, String email, UserRole role)
+        +User(String userId, String username, String password, String fullName, String email, UserRole role, int bookCapacity)
+        +String getUserId()
+        +String getUsername()
+        +String getPassword()
+        +String getFullName()
+        +String getEmail()
+        +UserRole getRole()
+        +boolean isActive()
+        +int getBookCapacity()
+        +void setBookCapacity(int bookCapacity)
+        +void setActive(boolean active)
+        +List<Transaction> getTransactionHistory()
+        +void addTransaction(Transaction transaction)
+        +void removeTransaction(Transaction transaction)
+        +int getActiveLoansCount()
+        +boolean hasReachedBorrowingLimit()
+        +int getRemainingBorrowingSlots()
+        +boolean canBorrowBooks()
+        +int getActiveLoansCountFromDatabase(DatabaseManager dbManager)
+        +int getRemainingBorrowingSlotsFromDatabase(DatabaseManager dbManager)
+        +boolean hasReachedBorrowingLimitFromDatabase(DatabaseManager dbManager)
+        +boolean canBorrowBooksFromDatabase(DatabaseManager dbManager)
+        +String toString()
+    }
+
+    class Transaction {
+        -String transactionId
+        -Book book
+        -User user
+        -LocalDateTime borrowDate
+        -LocalDateTime dueDate
+        -LocalDateTime returnDate
+        -TransactionType type
+        -TransactionStatus status
+        -double fineAmount
+        -String notes
+        +Transaction(String transactionId, Book book, User user)
+        +Transaction(String transactionId, Book book, User user, LocalDateTime returnDate)
+        +String getTransactionId()
+        +Book getBook()
+        +User getUser()
+        +LocalDateTime getBorrowDate()
+        +LocalDateTime getDueDate()
+        +LocalDateTime getReturnDate()
+        +TransactionType getType()
+        +TransactionStatus getStatus()
+        +double getFineAmount()
+        +String getNotes()
+        +void setReturnDate(LocalDateTime returnDate)
+        +void setStatus(TransactionStatus status)
+        +void setFineAmount(double fineAmount)
+        +void setNotes(String notes)
+        +boolean isOverdue()
+        +boolean canBeReturned()
+        +void returnBook()
+        +double calculateFine()
+        +int getDaysOverdue()
+        +String toString()
+    }
+
+    enum UserRole {
+        ADMIN
+        LIBRARIAN
+        MEMBER
+    }
+
+    enum TransactionType {
+        BORROW("Borrow")
+        RETURN("Return")
+        +String displayName
+        +TransactionType(String displayName)
+        +String toString()
+    }
+
+    enum TransactionStatus {
+        ACTIVE("Active")
+        RETURNED("Returned")
+        OVERDUE("Overdue")
+        CANCELLED("Cancelled")
+        +String displayName
+        +TransactionStatus(String displayName)
+        +String toString()
+    }
+}
+
+' Database Layer
+package "Database Layer" {
+    class DatabaseConfig {
+        -String DB_URL
+        -String DB_NAME
+        -String TABLE_BOOKS
+        -String TABLE_USERS
+        -String TABLE_TRANSACTIONS
+        +DatabaseConfig()
+        +Connection getConnection()
+        +String getCreateBooksTableSQL()
+        +String getCreateUsersTableSQL()
+        +String getCreateTransactionsTableSQL()
+        +void createTables()
+        +boolean testConnection()
+        +void closeConnection(Connection connection)
+    }
+
+    class DatabaseManager {
+        -DatabaseConfig dbConfig
+        +DatabaseManager()
+        +DatabaseConfig getDbConfig()
+        ' User Management
+        +boolean addUser(User user)
+        +boolean updateUser(User user)
+        +boolean deleteUser(String userId)
+        +User getUser(String userId)
+        +User getUserByUsername(String username)
+        +List<User> getAllUsers()
+        -User createUserFromResultSet(ResultSet rs)
+        ' Book Management
+        +boolean addBook(Book book)
+        +boolean updateBook(Book book)
+        +boolean deleteBook(String bookId)
+        +Book getBook(String bookId)
+        +List<Book> getAllBooks()
+        +List<Book> searchBooks(String searchTerm)
+        -Book createBookFromResultSet(ResultSet rs)
+        -int getBorrowedCopiesForBook(String bookId)
+        -void refreshAllBooksAvailability(List<Book> books)
+        -void updateBookAvailabilityInDatabase(Book book)
+        ' Transaction Management
+        +boolean addTransaction(Transaction transaction)
+        +boolean updateTransaction(Transaction transaction)
+        +Transaction getTransaction(String transactionId)
+        +List<Transaction> getAllTransactions()
+        +List<Transaction> getUserTransactionsFromDatabase(String userId)
+        +int getActiveLoansCountFromDatabase(String userId)
+        +int getOverdueBooksCountFromDatabase(String userId)
+        -Transaction createTransactionFromResultSet(ResultSet rs)
+        ' Sample Data
+        +void initializeSampleData()
+    }
+}
+
+' Business Logic Layer
+package "Business Logic Layer" {
+    class LibraryManager {
+        -static LibraryManager instance
+        -Map<String, Book> books
+        -Map<String, User> users
+        -Map<String, Transaction> transactions
+        -DatabaseManager databaseManager
+        -int nextBookId
+        -int nextUserId
+        -int nextTransactionId
+        -LibraryManager()
+        +static LibraryManager getInstance()
+        +DatabaseManager getDatabaseManager()
+        -void initializeDatabase()
+        -boolean checkIfDatabaseHasData()
+        -void loadDataFromDatabase()
+        -void initializeSampleData()
+        +void saveData()
+        +void refreshDataFromDatabase()
+        ' Book Management
+        +Book addBook(String title, String author, String isbn, String category, int totalCopies, String description, Date publicationDate, String publisher)
+        +boolean updateBook(String bookId, String title, String author, String isbn, String category, int totalCopies, String description, Date publicationDate, String publisher)
+        +boolean deleteBook(String bookId)
+        +Book getBook(String bookId)
+        +List<Book> getAllBooks()
+        +List<Book> searchBooks(String query)
+        ' User Management
+        +User addUser(String username, String password, String fullName, String email, User.UserRole role)
+        +boolean updateUser(String userId, String username, String password, String fullName, String email, User.UserRole role)
+        +boolean updateUserBookCapacity(String userId, int newCapacity)
+        +boolean deleteUser(String userId)
+        +User getUser(String userId)
+        +User getUserByUsername(String username)
+        +List<User> getAllUsers()
+        ' Transaction Management
+        +Transaction borrowBook(String bookId, String userId)
+        +boolean returnBook(String transactionId)
+        +Transaction getTransaction(String transactionId)
+        +List<Transaction> getAllTransactions()
+        +List<Transaction> getUserTransactions(String userId)
+        +List<Transaction> getOverdueTransactions()
+        +double calculateTotalFines()
+        ' Authentication & Utilities
+        +User authenticateUser(String username, String password)
+        +String getUserCapacityInfo(String userId)
+        +int getTotalBooks()
+        +int getTotalUsers()
+        +int getTotalTransactions()
+        +int getAvailableBooksCount()
+        +int getOverdueBooksCount()
+    }
+}
+
+' User Interface Layer
+package "User Interface Layer" {
+    class LoginFrame {
+        -JTextField usernameField
+        -JPasswordField passwordField
+        -JCheckBox rememberMeCheckBox
+        -JButton clearSavedButton
+        -JButton loginButton
+        -JButton registerButton
+        -JButton exitButton
+        -JLabel statusLabel
+        -LibraryManager libraryManager
+        -static final String LOGIN_CONFIG_FILE
+        +LoginFrame()
+        -void initializeComponents()
+        -void setupLayout()
+        -void setupEventHandlers()
+        -void performLogin()
+        -void restoreLoginState()
+        -void saveLoginState(String username, String password)
+        -void deleteLoginState()
+        -boolean hasSavedCredentials()
+        -void openDashboard(User user)
+        -void showRegistrationDialog()
+    }
+
+    class AdminDashboard {
+        -User currentUser
+        -LibraryManager libraryManager
+        -JTabbedPane tabbedPane
+        -JLabel welcomeLabel
+        -JButton logoutButton
+        -JTable bookTable
+        -JTable userTable
+        -JTable transactionTable
+        -DefaultTableModel bookTableModel
+        -DefaultTableModel userTableModel
+        -DefaultTableModel transactionTableModel
+        -JTextField bookSearchField
+        -JLabel totalBooksLabel
+        -JLabel totalUsersLabel
+        -JLabel totalTransactionsLabel
+        -JLabel availableBooksLabel
+        -JLabel overdueBooksLabel
+        -JLabel totalFinesLabel
+        +AdminDashboard(User user)
+        -void initializeComponents()
+        -void setupLayout()
+        -void setupEventHandlers()
+        -void setupBookManagementTab()
+        -void setupUserManagementTab()
+        -void setupTransactionManagementTab()
+        -void setupStatisticsTab()
+        -void loadBooks()
+        -void loadUsers()
+        -void loadTransactions()
+        -void showAddBookDialog()
+        -void showEditBookDialog()
+        -void showAddUserDialog()
+        -void showEditUserDialog()
+        -void showChangeCapacityDialog()
+        -void deleteSelectedBook()
+        -void deleteSelectedUser()
+        -void updateStatistics()
+    }
+
+    class LibrarianDashboard {
+        -User currentUser
+        -LibraryManager libraryManager
+        -JTabbedPane tabbedPane
+        -JLabel welcomeLabel
+        -JButton logoutButton
+        -JTable transactionTable
+        -JTable bookTable
+        -JTable userTable
+        -DefaultTableModel transactionTableModel
+        -DefaultTableModel bookTableModel
+        -DefaultTableModel userTableModel
+        -JButton borrowBookButton
+        -JButton returnBookButton
+        -JButton viewOverdueButton
+        -JButton showAllTransactionsButton
+        -JLabel transactionStatusLabel
+        -JTextField bookSearchField
+        -JTextField userSearchField
+        -JButton searchButton
+        -JButton clearSearchButton
+        -JButton searchUserButton
+        -JButton clearUserSearchButton
+        +LibrarianDashboard(User user)
+        -void initializeComponents()
+        -void setupLayout()
+        -void setupEventHandlers()
+        -void setupTransactionManagementTab()
+        -void setupBookSearchTab()
+        -void setupUserSearchTab()
+        -void loadData()
+        -void loadTransactions()
+        -void loadOverdueTransactions()
+        -void loadBooks()
+        -void loadUsers()
+        -void processBorrowRequest()
+        -void processReturnRequest()
+        -void searchBooks()
+        -void searchUsers()
+        -void styleButton(JButton button, Color backgroundColor)
+    }
+
+    class MemberDashboard {
+        -User currentUser
+        -LibraryManager libraryManager
+        -JTabbedPane tabbedPane
+        -JLabel welcomeLabel
+        -JButton logoutButton
+        -JTable bookTable
+        -JTable myBooksTable
+        -DefaultTableModel bookTableModel
+        -DefaultTableModel myBooksTableModel
+        -JTextField bookSearchField
+        -JButton searchButton
+        -JButton clearSearchButton
+        -JButton viewDetailsButton
+        -JButton borrowButton
+        -JButton refreshButton
+        -JButton returnBookButton
+        -JLabel borrowingStatusLabel
+        -JLabel capacityInfoLabel
+        +MemberDashboard(User user)
+        -void initializeComponents()
+        -void setupLayout()
+        -void setupEventHandlers()
+        -void setupBookSearchTab()
+        -void setupMyBooksTab()
+        -void loadData()
+        -void loadAvailableBooks()
+        -void loadMyBooks()
+        -void borrowSelectedBook()
+        -void returnSelectedBook()
+        -void updateBorrowingStatus()
+        -void searchBooks()
+    }
+
+    class LibraryManagementSystem {
+        +static void main(String[] args)
+        +LibraryManagementSystem()
+        +void start()
+    }
+}
+
+' Relationships
+' Core Entity Relationships
+Book ||--o{ Transaction : "has many"
+User ||--o{ Transaction : "has many"
+Transaction }o--|| Book : "references"
+Transaction }o--|| User : "references"
+
+' Database Layer Relationships
+DatabaseManager --> DatabaseConfig : "uses"
+DatabaseManager --> Book : "manages"
+DatabaseManager --> User : "manages"
+DatabaseManager --> Transaction : "manages"
+
+' Business Logic Relationships
+LibraryManager --> DatabaseManager : "uses"
+LibraryManager --> Book : "manages"
+LibraryManager --> User : "manages"
+LibraryManager --> Transaction : "manages"
+
+' UI Layer Relationships
+LoginFrame --> LibraryManager : "uses"
+AdminDashboard --> LibraryManager : "uses"
+LibrarianDashboard --> LibraryManager : "uses"
+MemberDashboard --> LibraryManager : "uses"
+LibraryManagementSystem --> LoginFrame : "starts with"
+
+' Singleton Pattern
+LibraryManager ..> LibraryManager : "getInstance()"
+
+' Enum Usage
+User --> UserRole : "has"
+Transaction --> TransactionType : "has"
+Transaction --> TransactionStatus : "has"
+
+' Notes
+note top of Book : "Manages book inventory\nand availability\nwith active status"
+note top of User : "Represents system users\nwith borrowing capacity\nand database integration"
+note top of Transaction : "Tracks book borrowing\nand return history\nwith fine calculation"
+note top of LibraryManager : "Singleton pattern\nCentral business logic\nwith database persistence"
+note top of DatabaseManager : "Handles all database\noperations with comprehensive\nCRUD functionality"
+note top of LoginFrame : "Entry point with\nRemember Me feature\nand credential persistence"
+note top of LibrarianDashboard : "Transaction management\nwith overdue tracking\nand user search"
+note top of MemberDashboard : "Book search and\nborrowing management\nwith capacity tracking"
+
+@enduml
